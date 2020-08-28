@@ -5,3 +5,5 @@ log/*.log
 db/
 
 *.gem
+
+test/dummy
