@@ -6,6 +6,7 @@ module RailsCom::Application
     'zh-TW' => 'zh',
     'en-US' => 'en'
   }.freeze
+
   extend ActiveSupport::Concern
 
   included do
@@ -18,12 +19,10 @@ module RailsCom::Application
   end
 
   def set_variant
-    variant = []
-    variant << :phone if request.user_agent =~ /iPad|iPhone|iPod|Android/
+    request.variant = []
+    request.variant << :phone if request.user_agent =~ /iPad|iPhone|iPod|Android/
+    request.variant << :wechat if request.user_agent =~ /MicroMessenger/
 
-    variant << :wechat if request.user_agent =~ /MicroMessenger/
-
-    request.variant = variant
     logger.debug "  ==========> Variant: #{request.variant}"
   end
 
@@ -40,44 +39,25 @@ module RailsCom::Application
     logger.debug "  ==========> Zone: #{Time.zone}"
   end
 
-  # Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7,zh-TW;q=0.6"
+  # 设置语言
   def set_locale
-    request_locales = request.headers['Accept-Language'].to_s.split(',')
-    request_locales = request_locales.map do |i|
-      l, q = i.split(';')
-      q ||= '1'
-      [l, q.sub('q=', '').to_f]
-    end
-    request_locales.sort_by! { |i| i[-1] }
-    request_locales.map! do |i|
-      r = LOCALE_MAP[i[0]]
-      r || i[0]
-    end.uniq!
-    locales = I18n.available_locales.map(&:to_s) & request_locales
+    locale = available_locales.include?(I18n.default_locale.to_s) ? I18n.default_locale : available_locales[-1]
+    session[:locale] = I18n.locale = [params[:locale], session[:locale], locale].compact[0]
 
-    q_locale = if locales.include?(I18n.default_locale.to_s)
-                 I18n.default_locale
-               else
-                 locales[-1]
-               end
-
-    locales = [params[:locale].presence, session[:locale].presence, q_locale].compact
-    locale = locales[0]
-
-    I18n.locale = locale
-    session[:locale] = locale
-
-    current_user.update locale: I18n.locale if current_user && current_user.locale.to_s != I18n.locale.to_s
+    current_user.update(locale: I18n.locale) if current_user && current_user.locale.to_s != I18n.locale.to_s
 
     logger.debug "  ==========> Locale: #{I18n.locale}"
   end
 
+  # 可用语言
+  def available_locales
+    # Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7,zh-TW;q=0.6"
+    request_locales = request.headers['Accept-Language'].to_s.split(',').map! { |l| l.split(';')[0] }
+    I18n.available_locales.map(&:to_s) & LOCALE_MAP.select { |key| request_locales.include?(key) }.values.uniq
+  end
+
   def set_country
-    if params[:country]
-      session[:country] = params[:country]
-    elsif current_user
-      session[:country] = current_user.country
-    end
+    session[:country] = params[:country] || current_user.try(:country)
 
     logger.debug "  ==========> Country: #{session[:country]}"
   end
