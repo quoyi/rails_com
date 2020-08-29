@@ -1,6 +1,7 @@
-<%= render layout: 'layouts/application_head' do %>
+<%= render layout: 'layouts/head' do %>
   <body>
-    <%= render 'nav_bar' %>
+    <%= render 'layouts/navbar' %>
+
     <main class="columns">
       <div class="column is-narrow" style="width: 260px;">
         <% if content_for?(:nav) %>
@@ -9,13 +10,16 @@
           <%= render 'nav' %>
         <% end %>
       </div>
+
       <div class="column as-body">
         <div class="as-main as-vertical-middle">
           <%= yield %>
         </div>
-        <%= render 'footer' %>
+
+        <%= render 'layouts/footer' %>
       </div>
     </main>
+
     <div id="modal"></div>
   </body>
 <% end %>

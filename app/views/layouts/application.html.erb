@@ -1,13 +1,17 @@
-<%= render layout: 'layouts/application_head' do %>
+<%= render layout: 'layouts/head' do %>
   <body class="as-body">
-    <%= render 'nav_bar' %>
+    <%= render 'layouts/navbar' %>
+
     <%= render 'shared/alert' %>
+
     <main class="columns is-fluid is-centered as-main">
       <div class="column container is-full">
         <%= yield %>
       </div>
     </main>
-    <%= render 'footer' %>
+
+    <%= render 'layouts/footer' %>
+
     <div id="modal"></div>
   </body>
 <% end %>

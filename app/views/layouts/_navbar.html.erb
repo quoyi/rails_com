@@ -1,0 +1,28 @@
+<nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+  <%# Logo %>
+  <div class="navbar-brand">
+    <%= link_to root_path, class: 'navbar-item' do %>
+      <%= image_pack_tag 'logo.svg', class: 'image' %>
+    <% end %>
+
+    <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarContainer">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div class="navbar-menu" id="navbarContainer">
+    <div class="navbar-start">
+    <% if defined?(current_user) && current_user %>
+      <%= render 'layouts/signed' %>
+    <% else %>
+      <%= render 'layouts/unsigned' %>
+    <% end %>
+    </div>
+
+    <div class="navbar-end">
+      <%= render 'layouts/right' %>
+    </div>
+  </div>
+</nav>
