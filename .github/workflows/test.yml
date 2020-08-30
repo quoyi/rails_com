@@ -8,6 +8,10 @@ jobs:
       run: |
         sudo systemctl enable postgresql.service
         sudo systemctl start postgresql
+      env:
+        POSTGRES_DB: dummy_test
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
     - name: Fetch Project
       uses: actions/checkout@v2
       with:
